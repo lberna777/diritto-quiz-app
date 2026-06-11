@@ -58,8 +58,9 @@ export default function ErrorReview() {
       <div className="bg-card border border-line rounded-2xl p-7">
         <h1 className="text-2xl font-bold">Ripassa gli errori</h1>
         <p className="text-muted mt-2">
-          Spaced repetition (Leitner): le domande sbagliate tornano spesso, poi sempre più di rado
-          man mano che le padroneggi. Le domande nuove e corrette rientrano comunque nel ciclo.
+          Spaced repetition (Leitner): qui finiscono solo le domande che hai{" "}
+          <b className="text-ink">sbagliato</b>. Tornano subito, poi sempre più di rado man mano che
+          le azzecchi (box 1→5). Quando le padroneggi escono dal ciclo.
         </p>
 
         <div className="mt-5 text-5xl font-extrabold">

@@ -67,23 +67,36 @@ export async function loadRunQuestions(ids: number[]): Promise<RunQuestion[]> {
   return out;
 }
 
-/** Pick N active question ids for a subject, optionally limited to a set of modules. */
+/**
+ * Pick N active question ids for a subject, optionally limited to modules.
+ * Anti-ripetizione: priorità alle domande mai viste, poi alle meno recenti,
+ * con casualità a parità (così l'ordine cambia ma non rivede sempre le stesse).
+ */
 export async function pickQuestionIds(
   subjectId: number,
   n: number,
   moduleIds?: number[],
 ): Promise<number[]> {
   const db = await getDb();
-  let sql = `SELECT id FROM questions WHERE subject_id = ? AND status = 'active'`;
+  let sql = `
+    SELECT q.id
+    FROM questions q
+    LEFT JOIN (
+      SELECT question_id, MAX(answered_at) AS last_seen, COUNT(*) AS seen
+      FROM quiz_answers GROUP BY question_id
+    ) a ON a.question_id = q.id
+    WHERE q.subject_id = ? AND q.status = 'active'`;
   const params: (number | string)[] = [subjectId];
   if (moduleIds && moduleIds.length) {
-    sql += ` AND module_id IN (${moduleIds.map(() => "?").join(",")})`;
+    sql += ` AND q.module_id IN (${moduleIds.map(() => "?").join(",")})`;
     params.push(...moduleIds);
   }
-  sql += ` ORDER BY RANDOM() LIMIT ?`;
+  // mai viste prima (last_seen NULL), poi viste meno di recente, random a parità
+  sql += ` ORDER BY (a.last_seen IS NOT NULL), a.last_seen ASC, RANDOM() LIMIT ?`;
   params.push(n);
   const rows = await db.select<{ id: number }[]>(sql, params);
-  return rows.map((r) => r.id);
+  // mescola il set estratto così l'ordine in-quiz non è sempre lo stesso
+  return shuffle(rows.map((r) => r.id));
 }
 
 export type SessionResult = {

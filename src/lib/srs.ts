@@ -1,23 +1,32 @@
 import { getDb } from "./db";
 
-// Leitner: giorni fino alla prossima comparsa per box (1..5)
-export const BOX_INTERVAL_DAYS = [0, 1, 3, 7, 16, 35]; // index = box (1..5)
+// Leitner: giorni fino alla prossima comparsa per box (1..5).
+// Box 1 (errore appena fatto) = 0 giorni -> ripassabile SUBITO.
+export const BOX_INTERVAL_DAYS = [0, 0, 1, 3, 7, 16]; // index = box (1..5)
 
 export function nextBox(currentBox: number, correct: boolean): number {
   if (!correct) return 1;
   return Math.min(5, currentBox + 1);
 }
 
-/** Aggiorna lo stato SRS di una domanda dopo una risposta. */
+/**
+ * Aggiorna lo stato SRS dopo una risposta.
+ * Solo gli ERRORI entrano nel sistema di ripasso: una domanda risposta
+ * correttamente al primo colpo (mai sbagliata) non viene tracciata.
+ * Quando una domanda già in ripasso viene azzeccata, sale di box (torna più tardi).
+ */
 export async function updateSrs(questionId: number, correct: boolean): Promise<void> {
   const db = await getDb();
   const rows = await db.select<{ box: number }[]>(
     "SELECT box FROM srs_state WHERE question_id = ?",
     [questionId],
   );
-  // nuova domanda: corretta -> box 2, sbagliata -> box 1; altrimenti avanza/azzera
-  const finalBox = rows.length ? nextBox(rows[0].box, correct) : correct ? 2 : 1;
-  const days = BOX_INTERVAL_DAYS[finalBox] ?? 1;
+  const existing = rows.length > 0;
+  // corretta e non ancora nel sistema => non è un errore, non tracciare
+  if (correct && !existing) return;
+  // nuova (= sbagliata) -> box 1; altrimenti avanza se corretta, azzera se sbagliata
+  const finalBox = existing ? nextBox(rows[0].box, correct) : 1;
+  const days = BOX_INTERVAL_DAYS[finalBox] ?? 0;
   await db.execute(
     `INSERT INTO srs_state (question_id, box, due_at, last_reviewed_at, n_seen, n_correct, n_wrong)
      VALUES (?, ?, datetime('now', '+' || ? || ' days'), datetime('now'), 1, ?, ?)
