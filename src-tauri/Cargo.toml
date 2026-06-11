@@ -1,0 +1,21 @@
+[package]
+name = "diritto-quiz-app"
+version = "0.1.0"
+description = "App quiz multi-materia per ripasso esami"
+authors = ["lorenzo"]
+edition = "2021"
+
+[lib]
+name = "diritto_quiz_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+tauri-plugin-sql = { version = "2", features = ["sqlite"] }
+tauri-plugin-window-state = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"

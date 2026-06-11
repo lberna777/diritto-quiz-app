@@ -14,8 +14,21 @@ Tauri 2 · React 19 · TypeScript · Vite · Tailwind CSS 4 · SQLite (`@tauri-a
 
 ## Stato
 
-In progettazione. Design approvato:
+v0.1 funzionante. Pool iniziale: **155 domande** verificate su 13 moduli (Diritto
+dell'Informatica T). Design:
 [`docs/superpowers/specs/2026-06-11-quiz-multimateria-design.md`](docs/superpowers/specs/2026-06-11-quiz-multimateria-design.md).
+
+### Build & avvio
+
+```bash
+npm install
+npm run tauri dev      # sviluppo
+npm run tauri build    # genera .deb e .AppImage in src-tauri/target/release/bundle/
+npm test               # test della logica (scoring, Leitner)
+```
+
+Installazione: `sudo dpkg -i "src-tauri/target/release/bundle/deb/Diritto Quiz T_0.1.0_amd64.deb"`
+oppure esegui l'AppImage. I dati restano in `~/.config/com.lorenzo.diritto-quiz/`.
 
 ## Funzioni principali
 
