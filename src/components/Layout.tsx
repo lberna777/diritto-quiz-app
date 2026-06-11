@@ -7,72 +7,81 @@ import {
   BarChart3,
   Sparkles,
   Settings as SettingsIcon,
+  Scale,
 } from "lucide-react";
 import { useApp } from "../store/app";
 
 const NAV = [
-  { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/esame", label: "Simulazione esame", icon: GraduationCap },
-  { to: "/argomento", label: "Ripasso argomento", icon: BookOpen },
-  { to: "/errori", label: "Ripassa errori", icon: RefreshCw },
+  { to: "/", label: "Home", icon: LayoutDashboard, end: true },
+  { to: "/esame", label: "Esame", icon: GraduationCap },
+  { to: "/argomento", label: "Argomento", icon: BookOpen },
+  { to: "/errori", label: "Errori", icon: RefreshCw },
   { to: "/statistiche", label: "Statistiche", icon: BarChart3 },
-  { to: "/genera", label: "Genera domande", icon: Sparkles },
+  { to: "/genera", label: "Genera", icon: Sparkles },
   { to: "/impostazioni", label: "Impostazioni", icon: SettingsIcon },
 ];
 
 export default function Layout() {
   const { subjects, activeSubjectId, setActiveSubject } = useApp();
+  const active = subjects.find((s) => s.id === activeSubjectId);
 
   return (
-    <div className="flex h-screen">
-      <aside className="w-60 shrink-0 bg-bg-2 border-r border-line flex flex-col">
-        <div className="px-4 py-5 border-b border-line">
-          <div className="font-extrabold text-lg tracking-tight">Diritto Quiz</div>
-          <div className="text-faint text-xs">ripasso a quiz</div>
-        </div>
+    <div className="min-h-screen flex flex-col">
+      {/* App bar */}
+      <header className="sticky top-0 z-20 backdrop-blur bg-bg/85 border-b border-line">
+        <div className="max-w-5xl mx-auto px-5 pt-3.5 pb-0">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2.5">
+              <div className="grid place-items-center w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-[#9a7bff] text-white shadow-lg shadow-accent/20">
+                <Scale size={18} />
+              </div>
+              <div className="leading-tight">
+                <div className="font-extrabold tracking-tight">Diritto Quiz</div>
+                <div className="text-faint text-[11px] -mt-0.5">
+                  {active ? active.name : "ripasso a quiz"}
+                </div>
+              </div>
+            </div>
 
-        {subjects.length > 1 && (
-          <div className="px-3 pt-3">
-            <select
-              value={activeSubjectId ?? ""}
-              onChange={(e) => void setActiveSubject(Number(e.target.value))}
-              className="w-full bg-card-2 border border-line rounded-lg px-2 py-2 text-sm text-ink"
-            >
-              {subjects.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
+            {subjects.length > 1 && (
+              <select
+                value={activeSubjectId ?? ""}
+                onChange={(e) => void setActiveSubject(Number(e.target.value))}
+                className="bg-card-2 border border-line rounded-lg px-3 py-1.5 text-sm text-ink"
+              >
+                {subjects.map((s) => (
+                  <option key={s.id} value={s.id}>
+                    {s.name}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
-        )}
 
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
-          {NAV.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              end={n.end}
-              className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition ${
-                  isActive
-                    ? "bg-accent text-white font-semibold"
-                    : "text-muted hover:bg-card hover:text-ink"
-                }`
-              }
-            >
-              <n.icon size={18} />
-              {n.label}
-            </NavLink>
-          ))}
-        </nav>
-
-        <div className="p-3 text-faint text-xs border-t border-line">
-          Esame: 16/06/2026 · in bocca al lupo
+          {/* Horizontal nav */}
+          <nav className="flex gap-1 mt-3 -mb-px overflow-x-auto">
+            {NAV.map((n) => (
+              <NavLink
+                key={n.to}
+                to={n.to}
+                end={n.end}
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3.5 py-2.5 text-sm whitespace-nowrap border-b-2 transition ${
+                    isActive
+                      ? "border-accent text-ink font-semibold"
+                      : "border-transparent text-muted hover:text-ink"
+                  }`
+                }
+              >
+                <n.icon size={16} />
+                {n.label}
+              </NavLink>
+            ))}
+          </nav>
         </div>
-      </aside>
+      </header>
 
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1">
         <Outlet />
       </main>
     </div>
