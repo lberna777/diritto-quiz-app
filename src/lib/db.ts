@@ -1,10 +1,19 @@
-import Database from "@tauri-apps/plugin-sql";
+import { isTauri } from "./env";
+import type { WebDb } from "./webdb";
 
-let _db: Database | null = null;
+type Db = WebDb; // sottoinsieme di @tauri-apps/plugin-sql usato dall'app: select() + execute()
 
-export async function getDb(): Promise<Database> {
+let _db: Db | null = null;
+
+export async function getDb(): Promise<Db> {
   if (!_db) {
-    _db = await Database.load("sqlite:diritto-quiz.db");
+    if (isTauri()) {
+      const { default: Database } = await import("@tauri-apps/plugin-sql");
+      _db = (await Database.load("sqlite:diritto-quiz.db")) as unknown as Db;
+    } else {
+      const { createWebDb } = await import("./webdb");
+      _db = await createWebDb();
+    }
   }
   return _db;
 }

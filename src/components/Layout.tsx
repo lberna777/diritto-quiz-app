@@ -10,6 +10,7 @@ import {
   Scale,
 } from "lucide-react";
 import { useApp } from "../store/app";
+import { isTauri } from "../lib/env";
 
 const NAV = [
   { to: "/", label: "Home", icon: LayoutDashboard, end: true },
@@ -17,13 +18,14 @@ const NAV = [
   { to: "/argomento", label: "Argomento", icon: BookOpen },
   { to: "/errori", label: "Errori", icon: RefreshCw },
   { to: "/statistiche", label: "Statistiche", icon: BarChart3 },
-  { to: "/genera", label: "Genera", icon: Sparkles },
-  { to: "/impostazioni", label: "Impostazioni", icon: SettingsIcon },
+  { to: "/genera", label: "Genera", icon: Sparkles, tauriOnly: true },
+  { to: "/impostazioni", label: "Impostazioni", icon: SettingsIcon, tauriOnly: true },
 ];
 
 export default function Layout() {
   const { subjects, activeSubjectId, setActiveSubject } = useApp();
   const active = subjects.find((s) => s.id === activeSubjectId);
+  const nav = NAV.filter((n) => !n.tauriOnly || isTauri());
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -60,7 +62,7 @@ export default function Layout() {
 
           {/* Horizontal nav */}
           <nav className="flex gap-1 mt-3 -mb-px overflow-x-auto">
-            {NAV.map((n) => (
+            {nav.map((n) => (
               <NavLink
                 key={n.to}
                 to={n.to}

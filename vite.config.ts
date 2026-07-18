@@ -7,6 +7,9 @@ const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/
 export default defineConfig(async () => ({
+  // GH_PAGES=1 solo per la build pubblicata su GitHub Pages (sotto-percorso);
+  // la build Tauri (desktop) resta con base "/" di default.
+  base: process.env.GH_PAGES ? "/diritto-quiz-app/" : "/",
   plugins: [react(), tailwindcss()],
   clearScreen: false,
   server: {

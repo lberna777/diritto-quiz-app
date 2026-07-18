@@ -9,6 +9,7 @@ import ErrorReview from "./features/ErrorReview";
 import Stats from "./features/Stats";
 import Generate from "./features/Generate";
 import Settings from "./features/Settings";
+import { isTauri } from "./lib/env";
 
 export default function App() {
   const { ready, error, init } = useApp();
@@ -44,8 +45,8 @@ export default function App() {
         <Route path="argomento" element={<TopicReview />} />
         <Route path="errori" element={<ErrorReview />} />
         <Route path="statistiche" element={<Stats />} />
-        <Route path="genera" element={<Generate />} />
-        <Route path="impostazioni" element={<Settings />} />
+        {isTauri() && <Route path="genera" element={<Generate />} />}
+        {isTauri() && <Route path="impostazioni" element={<Settings />} />}
       </Route>
     </Routes>
   );
